@@ -1,7 +1,11 @@
 @tool
 class_name LashProjectResource extends Resource
 
-var version : String = "0.0"
+@export var version : String = "0.0"
 
 # Data container
-var scene : PackedScene
+@export var scene : PackedScene
+
+func _init() -> void:
+	scene = PackedScene.new()
+	scene.pack(Node2D.new())

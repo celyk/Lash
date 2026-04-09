@@ -6,8 +6,22 @@ extends Control
 
 var project := LashProject.new()
 
+var save_name := "user://test_save.res" #.lash
+
 func _ready() -> void:
+	project = LashProject.open(save_name)
 	lash_canvas.project = project
+	
+	var line_2d := Line2D.new()
+	line_2d.width = 40
+	line_2d.antialiased = true
+	line_2d.default_color = Color.BLUE
+	line_2d.add_point(Vector2(500,10))
+	line_2d.add_point(Vector2(0, 400))
+	line_2d.add_point(Vector2(500, 500))
+	line_2d.add_point(Vector2(200, 500))
+	#lash_canvas.viewport.get_child(2).add_child(line_2d)
+	#line_2d.owner = lash_canvas.viewport.get_child(2)
 	
 	if OS.get_name() == "macOS" || OS.get_name() == "iOS":
 		get_window().content_scale_factor = 2.0
@@ -23,8 +37,7 @@ func _process(delta: float) -> void:
 		lash_timeline.toggle_play()
 	
 	if Input.is_action_just_pressed("file_save"):
-		var save_name := "user://test_save.lash"
-		project.set_scene(lash_canvas.viewport)
+		project.set_scene(lash_canvas.viewport.get_child(2))
 		project.save(save_name)
 		project = LashProject.open(save_name)
 		lash_canvas.project = project

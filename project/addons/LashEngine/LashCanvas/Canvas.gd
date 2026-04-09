@@ -14,6 +14,9 @@ var camera : LashCanvasCamera
 const CANVAS = preload("ui/Canvas.tscn")
 
 
+#func create_project() -> void:
+	#pass
+
 func reload_project() -> void:
 	if not (project and project._resource and project._resource.scene):
 		return
@@ -24,7 +27,6 @@ func reload_project() -> void:
 func _ready() -> void:
 	viewport = SubViewport.new()
 	add_child(viewport)
-	_initialize()
 
 func _initialize() -> void:
 	for child in viewport.get_children():
