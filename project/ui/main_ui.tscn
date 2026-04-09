@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b5shftvicpcqn" path="res://addons/LashEngine/LashCanvas/CanvasContainer.gd" id="1_3lvfr"]
 [ext_resource type="Script" uid="uid://da5eqv5sq87tm" path="res://addons/LashEngine/LashCanvas/Canvas.gd" id="2_hlo7n"]
+[ext_resource type="Script" uid="uid://dp2o321xylvkj" path="res://addons/LashEngine/LashTimeline/Timeline.gd" id="3_hlo7n"]
 
 [node name="UI" type="Control" unique_id=73856781]
 layout_mode = 3
@@ -10,6 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="HSplitContainer" type="HSplitContainer" parent="." unique_id=801115886]
 layout_mode = 1
@@ -50,11 +52,12 @@ metadata/_custom_type_script = "uid://da5eqv5sq87tm"
 [node name="Control" type="Control" parent="HSplitContainer/VSplitContainer" unique_id=1356019982]
 layout_mode = 2
 
-[node name="ColorRect" type="ColorRect" parent="HSplitContainer/VSplitContainer/Control" unique_id=2027205732]
+[node name="LashTimeline" type="Control" parent="HSplitContainer/VSplitContainer/Control" unique_id=996172581]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.10747976, 0.10747973, 0.10747973, 1)
+script = ExtResource("3_hlo7n")
+metadata/_custom_type_script = "uid://dp2o321xylvkj"
