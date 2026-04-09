@@ -20,4 +20,4 @@ config/features=PackedStringArray("4.6")
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/LashCanvas/plugin.cfg", "res://addons/LashPlayer/plugin.cfg", "res://addons/LashProject/plugin.cfg", "res://addons/Timeline/plugin.cfg", "res://addons/godot-boilerplate-addons/TechnicalCommands/plugin.cfg")
+enabled=PackedStringArray("res://addons/LashEngine/LashCanvas/plugin.cfg", "res://addons/LashEngine/LashPlayer/plugin.cfg", "res://addons/LashEngine/LashProject/plugin.cfg", "res://addons/LashEngine/LashTimeline/plugin.cfg", "res://addons/godot-boilerplate-addons/TechnicalCommands/plugin.cfg")

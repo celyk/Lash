@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://tyobte8uk6np"]
+
+[ext_resource type="Script" uid="uid://b5shftvicpcqn" path="res://addons/LashEngine/LashCanvas/CanvasContainer.gd" id="1_3lvfr"]
+[ext_resource type="Script" uid="uid://da5eqv5sq87tm" path="res://addons/LashEngine/LashCanvas/Canvas.gd" id="2_hlo7n"]
+
+[node name="UI" type="Control" unique_id=73856781]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LashCanvasContainer" type="Control" parent="." unique_id=982314893]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_3lvfr")
+metadata/_custom_type_script = "uid://b5shftvicpcqn"
+
+[node name="LashCanvas" type="Node2D" parent="LashCanvasContainer" unique_id=1895973164]
+script = ExtResource("2_hlo7n")
+metadata/_custom_type_script = "uid://da5eqv5sq87tm"
