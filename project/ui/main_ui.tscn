@@ -11,16 +11,50 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="LashCanvasContainer" type="Control" parent="." unique_id=982314893]
+[node name="HSplitContainer" type="HSplitContainer" parent="." unique_id=801115886]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+split_offsets = PackedInt32Array(50)
+split_offset = 50
+
+[node name="Control" type="Control" parent="HSplitContainer" unique_id=1761454051]
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="HSplitContainer/Control" unique_id=627285864]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.10747976, 0.10747973, 0.10747973, 1)
+
+[node name="VSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=276995948]
+layout_mode = 2
+split_offsets = PackedInt32Array(500)
+split_offset = 500
+
+[node name="LashCanvasContainer" type="Control" parent="HSplitContainer/VSplitContainer" unique_id=982314893]
+layout_mode = 2
 script = ExtResource("1_3lvfr")
 metadata/_custom_type_script = "uid://b5shftvicpcqn"
 
-[node name="LashCanvas" type="Node2D" parent="LashCanvasContainer" unique_id=1895973164]
+[node name="LashCanvas" type="Node2D" parent="HSplitContainer/VSplitContainer/LashCanvasContainer" unique_id=1895973164]
 script = ExtResource("2_hlo7n")
 metadata/_custom_type_script = "uid://da5eqv5sq87tm"
+
+[node name="Control" type="Control" parent="HSplitContainer/VSplitContainer" unique_id=1356019982]
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="HSplitContainer/VSplitContainer/Control" unique_id=2027205732]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.10747976, 0.10747973, 0.10747973, 1)
