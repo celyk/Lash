@@ -1,6 +1,7 @@
 extends Control
 
-@onready var lash_timeline: LashTimeline = $UI/HSplitContainer/VSplitContainer/Control/LashTimeline
+#@onready var lash_timeline: LashTimeline = $UI/HSplitContainer/VSplitContainer/Control/LashTimeline
+@onready var lash_timeline: LashTimeline = $CanvasLayer/UI/%LashTimeline
 
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("timeline_previous_frame"):

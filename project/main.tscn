@@ -12,7 +12,8 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_0xm2m")
 
-[node name="UI" parent="." unique_id=982314893 instance=ExtResource("1_ig7tw")]
-layout_mode = 1
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1449731732]
 
-[editable path="UI"]
+[node name="UI" parent="CanvasLayer" unique_id=982314893 instance=ExtResource("1_ig7tw")]
+
+[editable path="CanvasLayer/UI"]
