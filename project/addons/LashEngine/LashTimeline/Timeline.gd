@@ -4,11 +4,20 @@ class_name LashTimeline extends Control
 var state := TimelineState.new()
 
 func play() -> void:
-	pass
+	state.is_playing = true
+
+func pause() -> void:
+	state.is_playing = false
+
+func toggle_play() -> void:
+	state.is_playing = not state.is_playing
+
+func get_frame() -> int:
+	return int(state.time * state.fps)
 
 ## Scrubs to the frame in the timeline.
 func seek_frame(frame:int) -> void:
-	state.frame = frame
+	state.time = frame / state.fps
 
 ## Scrubs to the keyframe in the current layer.
 func seek_keyframe(keyframe:int) -> void:
@@ -18,17 +27,30 @@ func select_frame(frame_id:Vector2i) -> void:
 	state.layer = frame_id.y
 	seek_frame(frame_id.x)
 
+func advance(by_frames:int=1) -> void:
+	seek_frame(get_frame() + by_frames)
+
+func set_fps(new_fps:int) -> void:
+	pass
+
 func _gui_input(event: InputEvent) -> void:
 	#print(event)
 	if event is InputEventMouseButton:
-		var frame_id := _get_frame_id_at(event.position)
-		select_frame(frame_id)
+		if event.pressed:
+			var frame_id := _get_frame_id_at(event.position)
+			select_frame(frame_id)
 	if event is InputEventMouseMotion:
 		if event.button_mask == MouseButtonMask.MOUSE_BUTTON_MASK_LEFT:
 			var frame_id := _get_frame_id_at(event.position)
 			select_frame(frame_id)
 
 func _process(delta: float) -> void:
+	if state.is_playing:
+		state.time += delta
+		
+		if state.time > state.play_range[1]:
+			state.time = fposmod(state.time, state.play_range[1])
+	
 	queue_redraw()
 
 func _draw() -> void:
@@ -50,12 +72,15 @@ func _draw() -> void:
 			var color := Color.WHITE.darkened(0.5)
 			
 			if state.get_frame_id() == Vector2i(i,j):
-				color = color.darkened(0.2)
+				color = color.darkened(0.3)
+			
+			if state.layer != j:
+				color = color.darkened(0.1)
 			
 			draw_rect(Rect2(frame_pos, frame_size), color, true, -1.0, true)
 			draw_circle(frame_pos + frame_size / 2, frame_size.x / 2 / 4, Color.BLACK, true, -1.0, true)
 
-	var needle_x : float = state.frame * frame_scale.x + 0.5 * frame_size.x
+	var needle_x : float = get_frame() * frame_scale.x + 0.5 * frame_size.x
 	
 	if 0.0 <= needle_x and needle_x <= size.x:
 		draw_line(Vector2(needle_x, 0), Vector2(needle_x, size.y), Color.RED.darkened(0.3), 1.0, true)
