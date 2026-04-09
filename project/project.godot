@@ -24,7 +24,7 @@ AppState="*uid://rdjh3ibu7n1f"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/LashEngine/LashBrush/plugin.cfg", "res://addons/LashEngine/LashCanvas/plugin.cfg", "res://addons/LashEngine/LashPlayer/plugin.cfg", "res://addons/LashEngine/LashProject/plugin.cfg", "res://addons/LashEngine/LashTimeline/plugin.cfg", "res://addons/LashEngine/LashToolbar/plugin.cfg", "res://addons/LashPenTool/plugin.cfg", "res://addons/godot-boilerplate-addons/TechnicalCommands/plugin.cfg")
+enabled=PackedStringArray("res://addons/LashEngine/LashCanvas/plugin.cfg", "res://addons/LashEngine/LashPlayer/plugin.cfg", "res://addons/LashEngine/LashProject/plugin.cfg", "res://addons/LashEngine/LashTimeline/plugin.cfg", "res://addons/LashEngine/LashToolbar/plugin.cfg", "res://addons/godot-boilerplate-addons/TechnicalCommands/plugin.cfg")
 
 [input]
 
@@ -41,5 +41,10 @@ timeline_previous_frame={
 timeline_play={
 "deadzone": 0.2,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":32,"key_label":0,"unicode":32,"location":0,"echo":false,"script":null)
+]
+}
+file_save={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":true,"pressed":false,"keycode":0,"physical_keycode":83,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }

@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://tyobte8uk6np"]
 
 [ext_resource type="Script" uid="uid://b5shftvicpcqn" path="res://addons/LashEngine/LashCanvas/CanvasContainer.gd" id="1_3lvfr"]
+[ext_resource type="Script" uid="uid://ihhb67wodqi2" path="res://addons/LashEngine/LashToolbar/Toolbar.gd" id="1_x3h8h"]
 [ext_resource type="Script" uid="uid://da5eqv5sq87tm" path="res://addons/LashEngine/LashCanvas/Canvas.gd" id="2_hlo7n"]
 [ext_resource type="Script" uid="uid://dp2o321xylvkj" path="res://addons/LashEngine/LashTimeline/Timeline.gd" id="3_hlo7n"]
 
@@ -14,6 +15,15 @@ grow_vertical = 2
 mouse_filter = 2
 metadata/_edit_lock_ = true
 
+[node name="ColorRect" type="ColorRect" parent="." unique_id=148129383]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
 [node name="HSplitContainer" type="HSplitContainer" parent="." unique_id=801115886]
 layout_mode = 1
 anchors_preset = 15
@@ -21,25 +31,22 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-split_offsets = PackedInt32Array(50)
-split_offset = 50
+dragger_visibility = 2
+drag_area_highlight_in_editor = true
 metadata/_edit_lock_ = true
 
-[node name="Control" type="Control" parent="HSplitContainer" unique_id=1761454051]
+[node name="LashToolbar" type="Control" parent="HSplitContainer" unique_id=398044309]
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
-
-[node name="ColorRect" type="ColorRect" parent="HSplitContainer/Control" unique_id=627285864]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.10747976, 0.10747973, 0.10747973, 1)
+script = ExtResource("1_x3h8h")
+metadata/_custom_type_script = "uid://ihhb67wodqi2"
 
 [node name="VSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=276995948]
 layout_mode = 2
+size_flags_horizontal = 3
 split_offsets = PackedInt32Array(500)
+dragger_visibility = 2
+drag_area_highlight_in_editor = true
 split_offset = 500
 
 [node name="LashCanvasContainer" type="Control" parent="HSplitContainer/VSplitContainer" unique_id=982314893]
@@ -48,19 +55,13 @@ script = ExtResource("1_3lvfr")
 metadata/_custom_type_script = "uid://b5shftvicpcqn"
 
 [node name="LashCanvas" type="Node2D" parent="HSplitContainer/VSplitContainer/LashCanvasContainer" unique_id=1895973164]
+unique_name_in_owner = true
 script = ExtResource("2_hlo7n")
 metadata/_custom_type_script = "uid://da5eqv5sq87tm"
 
-[node name="Control" type="Control" parent="HSplitContainer/VSplitContainer" unique_id=1356019982]
-layout_mode = 2
-
-[node name="LashTimeline" type="Control" parent="HSplitContainer/VSplitContainer/Control" unique_id=996172581]
+[node name="LashTimeline" type="Control" parent="HSplitContainer/VSplitContainer" unique_id=996172581]
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
 script = ExtResource("3_hlo7n")
 metadata/_custom_type_script = "uid://dp2o321xylvkj"
