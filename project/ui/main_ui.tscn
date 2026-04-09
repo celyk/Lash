@@ -12,6 +12,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+metadata/_edit_lock_ = true
 
 [node name="HSplitContainer" type="HSplitContainer" parent="." unique_id=801115886]
 layout_mode = 1
@@ -22,6 +23,7 @@ grow_horizontal = 2
 grow_vertical = 2
 split_offsets = PackedInt32Array(50)
 split_offset = 50
+metadata/_edit_lock_ = true
 
 [node name="Control" type="Control" parent="HSplitContainer" unique_id=1761454051]
 layout_mode = 2
