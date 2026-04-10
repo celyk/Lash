@@ -1,0 +1,104 @@
+[gd_scene format=3 uid="uid://ox62pmob1qdq"]
+
+[sub_resource type="GDScript" id="GDScript_rb18r"]
+script/source = "extends Node2D
+
+var graph : Dictionary[Vector2, Array]
+
+func _ready() -> void:
+	pass
+
+func _process(delta: float) -> void:
+	queue_redraw()
+
+func _draw() -> void:
+	var iteration : int = get_tree().get_frame() >= 60
+	#iteration = 0
+	
+	graph.clear()
+	
+	#for child in get_children():
+		#if not (child is Path2D):
+			#continue
+		#
+		#var polyline := LashVectorGeometry2D._curve_to_polyline(child.curve)
+		#
+		#var other_graph := LashVectorGeometry2D.polylines_to_graph([polyline])
+		#graph = LashVectorGeometry2D.graph_graph_intersection(graph, other_graph)
+		#
+	
+	graph = LashVectorGeometry2D.polylines_to_graph([LashVectorGeometry2D._curve_to_polyline(get_child(0).curve)])
+	
+	var polyline0 := LashVectorGeometry2D._curve_to_polyline(get_child(1).curve)
+	var other_graph := LashVectorGeometry2D.polylines_to_graph([polyline0])
+	graph = LashVectorGeometry2D.graph_graph_intersection(graph, other_graph)
+
+	if iteration == 0:
+		graph.clear()
+		
+		for child in get_children():
+			if not (child is Path2D):
+				continue
+			
+			var polyline := LashVectorGeometry2D._curve_to_polyline(child.curve)
+			
+			var other_graph0 := LashVectorGeometry2D.polylines_to_graph([polyline])
+			graph = LashVectorGeometry2D.merge_graphs(graph, other_graph0)
+	
+	var polylines := LashVectorGeometry2D.get_polyliines_from_graph(graph)
+	for i:int in range(0, polylines.size()):
+		var polyline : LashVectorGeometry2D.Polyline = polylines[i]
+		
+		for segment in polyline.segments:
+			draw_line(segment.start,segment.end, Color.BLACK)
+			draw_circle(segment.start, 5.0, Color.GREEN)
+			draw_circle(segment.end, 5.0, Color.GREEN)
+	
+	print(graph.keys().size())
+	for key_point in graph.keys():
+		draw_circle(key_point, 7.0, Color.BLUE)
+	
+	if iteration == 0:
+		var intersection := LashVectorGeometry2D._internal_intersect_polyline_with_polyline(
+			LashVectorGeometry2D._curve_to_polyline(get_child(0).curve),
+			LashVectorGeometry2D._curve_to_polyline(get_child(1).curve),
+		)
+		
+		for point in intersection.points:
+			draw_circle(point, 5.0, Color.RED)
+		
+		var polyline00 : LashVectorGeometry2D.Polyline = LashVectorGeometry2D._curve_to_polyline(get_child(0).curve)
+		#print(polyline00.segments.front().start)
+		#print(polyline00.segments.back().end)
+		
+		var split : Array[LashVectorGeometry2D.Polyline] = LashVectorGeometry2D.split_polyline(polyline00, [1.5, 2.5, 0.5])
+		#split = polyline00.split(1.2)
+		_draw_polyline(split[posmod(get_tree().get_frame() / 10, split.size())], 5.0)
+
+func _draw_polyline(polyline:LashVectorGeometry2D.Polyline, width:float=5) -> void:
+	for segment in polyline.segments:
+		draw_line(segment.start,segment.end, Color.BLACK, width)
+"
+
+[sub_resource type="Curve2D" id="Curve2D_rb18r"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 77, 76, 0, 0, 0, 0, 68, 127, 0, 0, 0, 0, 151, 40, 0, 0, 0, 0, 77, 242, 0, 0, 0, 0, 183, 63, 0, 0, 0, 0, 539, 351, 0, 0, 0, 0, 418, 224, 0, 0, 0, 0, 418, 4, 0, 0, 0, 0, 491, 193, 0, 0, 0, 0, 751, 263, 0, 0, 0, 0, 751, 426, 0, 0, 0, 0, 853, 116)
+}
+point_count = 12
+
+[sub_resource type="Curve2D" id="Curve2D_ftuqj"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 166, 320, 0, 0, 0, 0, 303, 64, 0, 0, 0, 0, 573, 271, 0, 0, 0, 0, 852, 183)
+}
+point_count = 4
+
+[node name="Test" type="Node2D" unique_id=150468473]
+script = SubResource("GDScript_rb18r")
+
+[node name="Path2D" type="Path2D" parent="." unique_id=1595992100]
+curve = SubResource("Curve2D_rb18r")
+metadata/_edit_lock_ = true
+
+[node name="Path2D2" type="Path2D" parent="." unique_id=641828083]
+curve = SubResource("Curve2D_ftuqj")
+metadata/_edit_lock_ = true

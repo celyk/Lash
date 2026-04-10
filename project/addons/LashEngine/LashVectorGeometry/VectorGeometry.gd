@@ -8,14 +8,14 @@ func intersect_polyline_with_polyline() -> Array[Curve2D]:
 func intersect_graph_with_polyline() -> void:
 	pass
 
-func merge_graph_with_graph(graph_a:PolylineGraph, graph_b:PolylineGraph) -> PolylineGraph:
-	for i:int in range(0, graph_a.edges):
-		var edge_a := graph_a.edges[i]
-		for j:int in range(0, graph_b.edges):
-			var edge_b := graph_b.edges[i]
-			_internal_intersect_polyline_with_polyline(edge_a.polyline, edge_b.polyline)
-	
-	return null
+#func merge_graph_with_graph(graph_a:PolylineGraph, graph_b:PolylineGraph) -> PolylineGraph:
+	#for i:int in range(0, graph_a.edges):
+		#var edge_a := graph_a.edges[i]
+		#for j:int in range(0, graph_b.edges):
+			#var edge_b := graph_b.edges[i]
+			#_internal_intersect_polyline_with_polyline(edge_a.polyline, edge_b.polyline)
+	#
+	#return null
 
 class PolylineNode:
 	var pos : Vector2
