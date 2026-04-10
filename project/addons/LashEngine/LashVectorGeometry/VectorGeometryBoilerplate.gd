@@ -46,16 +46,46 @@ class Polyline:
 #class PlanarGraph:
 	#pass
 
+#func reorder(arr:Array, sort_values:Array) -> Array:
+	#return indices.map(func(e:int): return arr[e])
+
+func sort_from(arr:Array, key:Array) -> Array:
+	key = key.duplicate()
+
+	# Append the index for later.
+	for i:int in range(0, arr.size()):
+		key[i] = [key[i], i]
+	
+	# Sort the key array.
+	key.sort_custom(func(a,b): return a[0] < a[1])
+	
+	# Use the index to reorder the array.
+	return arr.map(func(e): return arr[key[1]])
+
 # Does points need sorting?
-func split_polyline(polyline:Polyline, points:Array[float]) -> Array[Polyline]:
+func split_polyline(polyline:Polyline, ts:Array[float], points:Array[Vector2]=[]) -> Array[Polyline]:
 	points = points.duplicate()
-	points.sort()
+	ts = ts.duplicate()
+	
+	if points:
+		points = sort_from(points, ts)
+	
+	ts.sort()
 	
 	var result : Array[Polyline]
 	var back : Polyline = polyline
 	
-	for t:float in points:
-		var split := back.split(t)
+	for i:int in range(0, ts.size()):
+		var t : float = ts[i]
+		var split : Array[Polyline] = back.split(t)
+		
+		# Force the end points to be equal.
+		if points:
+			var exact_split_point : Vector2 = points[i]
+			
+			split[0].segments.back().end = exact_split_point
+			split[1].segments.front().start = exact_split_point
+		
 		result.append(split)
 		back = split[1]
 	
@@ -63,6 +93,9 @@ func split_polyline(polyline:Polyline, points:Array[float]) -> Array[Polyline]:
 
 class PolylineIntersectionResult:
 	var points : Array[Vector2]
+	
+	# The position can be the ID
+	#var point_ids : Array[int]
 	
 	## The t values for the first polyline
 	var t_a : Array[float]
@@ -77,3 +110,34 @@ func _internal_intersect_polyline_with_polyline(polyline_a:Polyline, polyline_b:
 			pass
 	
 	return null
+
+func graph_from_intersection(polyline_a:Polyline, polyline_b:Polyline) -> Dictionary[Vector2, Array]:
+	var intersection : PolylineIntersectionResult = _internal_intersect_polyline_with_polyline(polyline_a, polyline_b)
+	
+	var graph : Dictionary[Vector2, Array]
+	
+	var split : Array[Polyline] = split_polyline(polyline_a, intersection.t_a, intersection.points)
+	
+	for polyline in split:
+		if not graph.has(polyline.segments.front().start):
+			graph[polyline.segments.front().start] = []
+		
+		if not graph.has(polyline.segments.back().end):
+			graph[polyline.segments.back().end] = []
+		
+		graph[polyline.segments.front().start].append(polyline)
+		graph[polyline.segments.back().end].append(polyline)
+	
+	split = split_polyline(polyline_b, intersection.t_b, intersection.points)
+	
+	for polyline in split:
+		if not graph.has(polyline.segments.front().start):
+			graph[polyline.segments.front().start] = []
+		
+		if not graph.has(polyline.segments.back().end):
+			graph[polyline.segments.back().end] = []
+		
+		graph[polyline.segments.front().start].append(polyline)
+		graph[polyline.segments.back().end].append(polyline)
+	
+	return graph
