@@ -12,6 +12,7 @@ var prev_position : Vector2
 func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		if event.pressed:
+			prev_position = event.position
 			preview_curve = Curve2D.new()
 			preview_curve.add_point(event.position)
 			preview_curve.add_point(event.position)
