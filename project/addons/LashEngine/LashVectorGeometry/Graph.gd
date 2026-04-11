@@ -3,6 +3,7 @@ class_name VGraph extends RefCounted
 
 var nodes : Array[VNode]
 var edges : Array[VEdge]
+#var faces : Array[VFace]
 
 var pos_to_node_cache : Dictionary[Vector2, VNode]
 
@@ -12,13 +13,42 @@ class VNode:
 	var id : int
 	func get_hash() -> int:
 		return hash(pos)
+	
+	static func create(pos:Vector2) -> VNode:
+		var result := VNode.new()
+		result.pos = pos
+		return result
 
 class VEdge:
 	var nodes : Array[VNode]
+	var faces : Array[VNode]
+	#var faces : Dictionary[VFace, bool]
 	var id : int
 	
 	func is_valid() -> bool:
-		return nodes[0] != null and nodes[1] != null
+		return nodes and nodes[0] != null and nodes[1] != null
+	
+	static func create(node_a:VNode, node_b:VNode) -> VEdge:
+		var result := VEdge.new()
+		
+		result.nodes = [node_a, node_b]
+		
+		return result
+	
+	static func create_from_segment(a:Vector2, b:Vector2) -> VEdge:
+		var node_a := VNode.create(a)
+		var node_b := VNode.create(b)
+		
+		var result := create(node_a, node_b)
+		
+		node_a.edges.append(result)
+		node_b.edges.append(result)
+		
+		return result
+
+class VFace:
+	var nodes : Array[VNode]
+	var edges : Array[VEdge]
 
 class IntersectionPoint:
 	var pos : Vector2
@@ -40,6 +70,13 @@ static func intersect_edges(edge_a:VEdge, edge_b:VEdge) -> IntersectionPoint:
 	var result := IntersectionPoint.new()
 	result.edges.append(edge_a)
 	result.edges.append(edge_b)
+	
+	# Ignore any end points intersection.
+	for i in range(0, 2):
+		for j in range(0, 2):
+			if edge_a.nodes[i].pos == edge_b.nodes[j].pos:
+				return null
+	
 	
 	var line_intersection : Variant = Geometry2D.segment_intersects_segment(edge_a.nodes[0].pos, edge_a.nodes[1].pos, edge_b.nodes[0].pos, edge_b.nodes[1].pos)
 	
@@ -74,6 +111,7 @@ func merge_nonintersecting_edge(edge:VEdge) -> void:
 		var pos : Vector2 = edge.nodes[i].pos
 		if pos_to_node_cache.has(pos):
 			edge.nodes[i] = pos_to_node_cache[pos]
+			edge.nodes[i].edges.append(edge)
 		else:
 			pos_to_node_cache[pos] = edge.nodes[i]
 			nodes.append(edge.nodes[i])
@@ -81,24 +119,15 @@ func merge_nonintersecting_edge(edge:VEdge) -> void:
 	edges.append(edge)
 
 func merge_node_between_edge(node:VNode, graph_edge:VEdge) -> void:
-	var edge_a := VEdge.new()
-	var edge_b := VEdge.new()
+	var edge_a := VEdge.create(graph_edge.nodes[0], node)
+	var edge_b := VEdge.create(node, graph_edge.nodes[1])
 	
-	edge_a.nodes = [null, null]
-	edge_b.nodes = [null, null]
 	node.edges = [null, null]
-	
-	edge_a.nodes[0] = graph_edge.nodes[0]
-	edge_a.nodes[1] = node
-	edge_b.nodes[0] = node
-	edge_b.nodes[1] = graph_edge.nodes[1]
-	
 	node.edges[0] = edge_a
 	node.edges[1] = edge_b
 	
 	edges.append(edge_a)
 	edges.append(edge_b)
-	
 	nodes.append(node)
 	
 	remove_edge(graph_edge)
@@ -137,13 +166,9 @@ func merge_edge(edge:VEdge) -> void:
 	for i:int in range(0, intersections.size()):
 		var intersection := intersections[i]
 		
-		var new_edge := VEdge.new()
-		new_edge.nodes = [null, null]
-		new_edge.nodes[0] = prev_edge_node
-		
 		var split_node : VNode = split_edge(intersection.edges[1], intersection.ts[1])
 		
-		new_edge.nodes[1] = split_node
+		var new_edge := VEdge.create(prev_edge_node, split_node)
 		
 		merge_nonintersecting_edge(new_edge)
 		
@@ -202,3 +227,77 @@ func rebuild_position_cache() -> void:
 	
 	for node in nodes:
 		pos_to_node_cache[node.pos] = node
+
+func get_next_CCW_edge(edge:VEdge) -> VEdge:
+	var result : VEdge
+	
+	var central_node := edge.nodes[1]
+	
+	var sort_dir : Vector2 = central_node.pos - edge.nodes[0].pos
+	
+	print(edge.nodes[1].edges)
+	var candidates := edge.nodes[1].edges.duplicate()
+	print("before erase: ", candidates)
+	candidates.erase(edge)
+	print("after erase: ", candidates)
+	
+	if candidates.is_empty():
+		return null
+	
+	candidates.sort_custom(func(a:VEdge, b:VEdge): 
+		var a_dir : Vector2
+		var b_dir : Vector2
+		
+		if a.nodes[0] == central_node:
+			a_dir = a.nodes[1].pos - central_node.pos
+		else:
+			a_dir = a.nodes[0].pos - central_node.pos
+		
+		if b.nodes[0] == central_node:
+			b_dir = b.nodes[1].pos - central_node.pos
+		else:
+			b_dir = b.nodes[0].pos - central_node.pos
+		
+		return sort_dir.angle_to(a_dir) < sort_dir.angle_to(b_dir))
+	
+	return candidates[0]
+
+func build_faces_from_edge(edge:VEdge) -> Array[VFace]:
+	var face_a := VFace.new()
+	var face_b := VFace.new()
+	
+	var current_edge : VEdge = edge
+	face_a.edges.append(edge)
+	
+	while true:
+		face_a.edges.append(current_edge)
+		
+		current_edge = get_next_CCW_edge(current_edge)
+		print("build_faces_from_edge", current_edge)
+		
+		if current_edge == null:
+			break
+		
+		## Advance
+		if current_edge == edge:
+			break
+	
+	return [face_a, face_b]
+
+func get_face_from_pos(pos:Vector2) -> VFace:
+	var segment := VEdge.create_from_segment(pos + Vector2(10,0), pos + Vector2(1000,0))
+	
+	var intersections := intersect_with_edge(segment)
+	
+	if intersections.is_empty():
+		return null
+	
+	var faces := build_faces_from_edge(intersections[0].edges[1])
+	
+	return faces[0]
+
+var faces_cache : Dictionary[VFace, bool]
+func rebuild_faces() -> void:
+	for edge in edges:
+		#var faces := build_faces_from_edge()
+		pass
