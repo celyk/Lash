@@ -6,6 +6,9 @@ script/source = "extends Node2D
 var preview_curve : Curve2D
 var graph := VGraph.new()
 
+var draw_mode : bool = true
+
+var prev_position : Vector2
 func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		if event.pressed:
@@ -18,6 +21,12 @@ func _input(event: InputEvent) -> void:
 	
 	if event is InputEventScreenDrag:
 		preview_curve.set_point_position(1, event.position)
+		
+		if draw_mode:
+			preview_curve.set_point_position(0, prev_position)
+			_submit_curve(preview_curve)
+		
+		prev_position = event.position
 
 func _ready() -> void:
 	Input.emulate_touch_from_mouse = true
