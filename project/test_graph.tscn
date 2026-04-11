@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://bjdbpi7bfgxxg"]
+
+[sub_resource type="GDScript" id="GDScript_svqx4"]
+script/source = "extends Node2D
+
+var preview_curve : Curve2D
+var graph := VGraph.new()
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			preview_curve = Curve2D.new()
+			preview_curve.add_point(event.position)
+			preview_curve.add_point(event.position)
+		else:
+			_submit_curve(preview_curve)
+			preview_curve = null
+	
+	if event is InputEventScreenDrag:
+		preview_curve.set_point_position(1, event.position)
+
+func _ready() -> void:
+	Input.emulate_touch_from_mouse = true
+
+func _process(delta: float) -> void:
+	queue_redraw()
+
+func _draw() -> void:
+	if preview_curve:
+		draw_line(preview_curve.get_point_position(0), preview_curve.get_point_position(1), Color.GREEN, 4.0)
+	
+	for edge in graph.edges:
+		seed(hash(edge))
+		draw_line(edge.nodes[0].pos, edge.nodes[1].pos, Color(randf(), randf(), randf()).lightened(0.5), 4.0)
+	
+	for node in graph.nodes:
+		draw_circle(node.pos, 6.0, Color.RED, 4.0)
+	
+
+func _submit_curve(curve:Curve2D) -> void:
+	var edge := VGraph.VEdge.new()
+	var node_a := VGraph.VNode.new()
+	var node_b := VGraph.VNode.new()
+	
+	node_a.pos = curve.get_point_position(0)
+	node_b.pos = curve.get_point_position(1)
+	
+	edge.nodes.append(node_a)
+	edge.nodes.append(node_b)
+	
+	print(\"merging edge, \")
+	graph.merge_edge(edge)
+"
+
+[node name="Test" type="Node2D" unique_id=150468473]
+script = SubResource("GDScript_svqx4")

@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Lash"
-run/main_scene="uid://ox62pmob1qdq"
+run/main_scene="uid://bjdbpi7bfgxxg"
 config/features=PackedStringArray("4.6")
 
 [autoload]
