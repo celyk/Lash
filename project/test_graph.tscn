@@ -9,6 +9,7 @@ var graph := VGraph.new()
 var draw_mode : bool = true
 
 var current_face : VGraph.VFace 
+var current_edge : VGraph.VEdge
 
 var prev_position : Vector2
 func _input(event: InputEvent) -> void:
@@ -19,17 +20,27 @@ func _input(event: InputEvent) -> void:
 			preview_curve.add_point(event.position)
 			preview_curve.add_point(event.position)
 			
-			current_face = graph.get_face_from_pos(event.position)
+			var segment := VGraph.VEdge.create_from_segment(event.position + Vector2(10,0), event.position + Vector2(1000,0))
+			var intersections := graph.intersect_with_edge(segment)
+			
+			if not intersections.is_empty():
+				current_edge = intersections[0].edges[1]
+			
+			#current_face = graph.get_face_from_pos(event.position)
 		else:
 			_submit_curve(preview_curve)
 			preview_curve = null
 	
 	if event is InputEventScreenDrag:
-		preview_curve.set_point_position(1, event.position)
+		if posmod(get_tree().get_frame(), 10) != 0:
+			return
 		
-		if draw_mode:
-			preview_curve.set_point_position(0, prev_position)
-			_submit_curve(preview_curve)
+		if preview_curve:
+			preview_curve.set_point_position(1, event.position)
+			
+			if draw_mode:
+				preview_curve.set_point_position(0, prev_position)
+				_submit_curve(preview_curve)
 		
 		prev_position = event.position
 
@@ -37,6 +48,10 @@ func _ready() -> void:
 	Input.emulate_touch_from_mouse = true
 
 func _process(delta: float) -> void:
+	if posmod(get_tree().get_frame(), 10) == 0:
+		if current_edge:
+			current_edge = graph.get_next_CCW_edge(current_edge)
+	
 	queue_redraw()
 
 func _draw() -> void:
@@ -62,11 +77,14 @@ func _draw() -> void:
 	if current_face:
 		for edge in current_face.edges:
 			draw_line(edge.nodes[0].pos, edge.nodes[1].pos, Color.BLACK, 6.0)
-		
 	
+	if current_edge:
+		draw_line(current_edge.nodes[0].pos, current_edge.nodes[1].pos, Color.WHEAT, 6.0)
+
 	for node in graph.nodes:
-		draw_circle(node.pos, 6.0, Color.RED, 4.0)
-	
+		seed(hash(node))
+		draw_circle(node.pos + 100 * Vector2(randf(),randf()) * sin(get_tree().get_frame()/60.0), 6.0, Color.RED, 4.0)
+
 
 func _submit_curve(curve:Curve2D) -> void:
 	var edge := VGraph.VEdge.create_from_segment(curve.get_point_position(0), curve.get_point_position(1))
@@ -78,7 +96,8 @@ func _submit_curve(curve:Curve2D) -> void:
 	#print(\"merging edge, \", graph.nodes.map(func(e): return e.edges.size()))
 	graph.merge_edge(edge)
 	
-	#print(graph.pos_to_node_cache.size())
+	print(\"graph.nodes.size(): \", graph.nodes.size())
+	print(\"graph.edges.size(): \", graph.edges.size())
 	
 "
 

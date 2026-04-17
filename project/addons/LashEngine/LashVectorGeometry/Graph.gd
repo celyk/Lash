@@ -107,16 +107,19 @@ func intersect_with_edge(edge:VEdge) -> Array[IntersectionPoint]:
 
 func merge_nonintersecting_edge(edge:VEdge) -> void:
 	## Merge overlapping nodes.
+	var nodes_merged := 0
 	for i in range(0, 2):
 		var pos : Vector2 = edge.nodes[i].pos
 		if pos_to_node_cache.has(pos):
 			edge.nodes[i] = pos_to_node_cache[pos]
 			edge.nodes[i].edges.append(edge)
+			nodes_merged += 1
 		else:
 			pos_to_node_cache[pos] = edge.nodes[i]
 			nodes.append(edge.nodes[i])
 	
-	edges.append(edge)
+	if edge.nodes[0].pos != edge.nodes[1].pos:
+		edges.append(edge)
 
 func merge_node_between_edge(node:VNode, graph_edge:VEdge) -> void:
 	var edge_a := VEdge.create(graph_edge.nodes[0], node)
@@ -130,6 +133,12 @@ func merge_node_between_edge(node:VNode, graph_edge:VEdge) -> void:
 	edges.append(edge_b)
 	nodes.append(node)
 	
+	# Update the edges that were connected to the edge just split.
+	#graph_edge.nodes[0].edges.erase(graph_edge)
+	#graph_edge.nodes[0].edges.append(edge_a)
+	#graph_edge.nodes[1].edges.erase(graph_edge)
+	#graph_edge.nodes[1].edges.append(edge_b)
+	
 	remove_edge(graph_edge)
 
 # This edge is non-intersecting except at the end points where it is touching one edge of the graph.
@@ -139,8 +148,14 @@ func merge_kissing_edge(edge:VEdge, touched_edge:VEdge):
 	#merge_nonintersecting_edge(edge)
 
 func split_edge(edge:VEdge, t:float) -> VNode:
-	var node := VNode.new()
-	node.pos = lerp(edge.nodes[0].pos, edge.nodes[1].pos, t)
+	var node := VNode.create(lerp(edge.nodes[0].pos, edge.nodes[1].pos, t))
+	
+	merge_node_between_edge(node, edge)
+	
+	return node
+
+func split_edge_at_pos(edge:VEdge, pos:Vector2) -> VNode:
+	var node := VNode.create(pos)
 	
 	merge_node_between_edge(node, edge)
 	
@@ -166,7 +181,7 @@ func merge_edge(edge:VEdge) -> void:
 	for i:int in range(0, intersections.size()):
 		var intersection := intersections[i]
 		
-		var split_node : VNode = split_edge(intersection.edges[1], intersection.ts[1])
+		var split_node : VNode = split_edge_at_pos(intersection.edges[1], intersection.pos)
 		
 		var new_edge := VEdge.create(prev_edge_node, split_node)
 		
@@ -174,41 +189,10 @@ func merge_edge(edge:VEdge) -> void:
 		
 		prev_intersection = intersection
 		prev_edge_node = new_edge.nodes[0] 
-		
-		#remove_edge(intersection.edges[1])
-		
-		#for intersecting_edge in intersection.edges:
-			#var node := split_edge(intersecting_edge, intersection.ts[1])
-			#
-			#var edge_a := VEdge.new()
-			#edge_a.nodes = [null, null]
-			#edge_a.nodes[0] = edge.nodes[0]
-			#edge_a.nodes[1] = node
-			#
-			#var edge_b := VEdge.new()
-			#edge_b.nodes = [null, null]
-			#edge_b.nodes[0] = node
-			#edge_b.nodes[1] = edge.nodes[1]
-			#
-			#merge_nonintersecting_edge(edge_a)
-			#merge_nonintersecting_edge(edge_b)
-			#
-			## Just erase all these edges?
-			##remove_edge(intersecting_edge)
 	
-	var new_edge := VEdge.new()
-	new_edge.nodes = [null, null]
-	new_edge.nodes[0] = prev_edge_node
-	
-	#var split_node : VNode = split_edge(prev_intersection.edges[1], prev_intersection.ts[1])
-	
-	new_edge.nodes[1] = edge.nodes[1]
+	var new_edge := VEdge.create(prev_edge_node, edge.nodes[1])
 	
 	merge_nonintersecting_edge(new_edge)
-	
-	
-	#for edge in overlapping_edges:
-		#pass
 	
 	rebuild_position_cache()
 
