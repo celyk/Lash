@@ -22,7 +22,7 @@ func reload_project() -> void:
 		return
 	
 	_initialize()
-	viewport.add_child(project._resource.scene.instantiate())
+	viewport.add_child(project._resource.scene.instantiate(), true)
 
 func _ready() -> void:
 	viewport = SubViewport.new()
@@ -34,7 +34,7 @@ func _initialize() -> void:
 	
 	camera = LashCanvasCamera.new()
 	viewport.add_child(camera)
-	viewport.add_child(CANVAS.instantiate())
+	viewport.add_child(CANVAS.instantiate(), true)
 
 func _process(delta: float) -> void:
 	if viewport.size != size:

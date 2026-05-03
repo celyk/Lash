@@ -6,7 +6,9 @@ extends Control
 
 var project := LashProject.new()
 
-var save_name := "user://test_save.res" #.lash
+var save_name := "user://test_save.lash"
+
+var save_count := 0
 
 func _ready() -> void:
 	project = LashProject.open(save_name)
@@ -15,13 +17,15 @@ func _ready() -> void:
 	var line_2d := Line2D.new()
 	line_2d.width = 40
 	line_2d.antialiased = true
-	line_2d.default_color = Color.BLUE
-	line_2d.add_point(Vector2(500,10))
-	line_2d.add_point(Vector2(0, 400))
+	line_2d.default_color = Color.PURPLE.from_hsv(save_count / PI + .6, 1.0, 1.0)
+	line_2d.add_point(Vector2(400 + save_count * 50,100))
+	line_2d.add_point(Vector2(100, 400))
 	line_2d.add_point(Vector2(500, 500))
 	line_2d.add_point(Vector2(200, 500))
-	#lash_canvas.viewport.get_child(2).add_child(line_2d)
-	#line_2d.owner = lash_canvas.viewport.get_child(2)
+	
+	print(lash_canvas.viewport.get_child(2))
+	lash_canvas.viewport.get_child(2).add_child(line_2d, true); line_2d.owner = lash_canvas.viewport.get_child(2)
+	print(line_2d.get_path())
 	
 	if OS.get_name() == "macOS" || OS.get_name() == "iOS":
 		get_window().content_scale_factor = 2.0
@@ -41,3 +45,4 @@ func _process(delta: float) -> void:
 		project.save(save_name)
 		project = LashProject.open(save_name)
 		lash_canvas.project = project
+		save_count += 1
