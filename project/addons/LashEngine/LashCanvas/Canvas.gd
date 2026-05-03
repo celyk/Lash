@@ -36,6 +36,9 @@ func _initialize() -> void:
 	viewport.add_child(camera)
 	viewport.add_child(CANVAS.instantiate(), true)
 
+func _input(event: InputEvent) -> void:
+	viewport.push_input(event)
+
 func _process(delta: float) -> void:
 	if viewport.size != size:
 		viewport.size = size

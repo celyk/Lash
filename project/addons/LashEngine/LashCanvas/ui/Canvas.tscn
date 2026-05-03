@@ -1,6 +1,65 @@
 [gd_scene format=3 uid="uid://3iulu8vkw73n"]
 
 [ext_resource type="Texture2D" uid="uid://d36m3c10kqtoa" path="res://icon.svg" id="1_5vn3s"]
+[ext_resource type="Script" uid="uid://dtxjkv7ai4j34" path="res://addons/LashEngine/LashBrushEngine/PreviewCanvas.gd" id="2_brmve"]
+
+[sub_resource type="GDScript" id="GDScript_brmve"]
+script/source = "@tool
+extends Node2D
+
+var points : Array[Vector3]
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.pressed:
+			get_parent().show_preview = true
+		else:
+			get_parent().commit()
+			points.clear()
+			
+			get_parent().show_preview = false
+	
+	if event is InputEventMouseMotion:
+		if event.button_mask == MOUSE_BUTTON_MASK_LEFT:
+			var p : Vector2 = event.position
+			points.append(Vector3(p.x, p.y, 1))
+			get_parent().set_stroke_points(points)
+
+func _ready() -> void:
+	get_parent().stroke_commited.connect(_on_stroke_commited)
+
+func _on_stroke_commited(paths:Array[PackedVector2Array]) -> void:
+	print(\"Commited stroke!\")
+	
+	print(paths)
+	
+	if paths.is_empty():
+		return
+	
+	var polygons : Array[PackedVector2Array]
+	polygons = merge_polygons_with_polygons(polygons, paths)
+	polygons = [paths[0]]
+	
+	for path in polygons:
+		var polygon := Polygon2D.new()
+		polygon.antialiased = true
+		polygon.polygon = path
+		add_child(polygon)
+
+func merge_polygons_with_polygons(a:Array[PackedVector2Array], b:Array[PackedVector2Array]) -> Array[PackedVector2Array]:
+	var result : Array[PackedVector2Array]
+	
+	for polygon_a in a:
+		for polygon_b in b:
+			result.append_array(Geometry2D.merge_polygons(polygon_a, polygon_b))
+	
+	return result
+"
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_brmve"]
+vertices = PackedVector2Array(-225.28125, -145.96875, -123.28125, -175.42188, -127.078125, -96.53906, -176.92188, 81.1875, -81.97656, 32.921875, 26.070313, 70.84375, -47.867188, 70.07031, -57.351563, 42.828125, 2.3125, 12.4921875, 218.86719, -120.03125, 12.640625, -15.171875, -60.023438, -193.67188, 139.40625, -251.25781, -86.92969, -206.71875, -101.953125, -202.39063, -100.17969, -239.28125)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(3, 2, 4), PackedInt32Array(5, 6, 7, 8), PackedInt32Array(9, 10, 11, 12), PackedInt32Array(13, 14, 15)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(144, -263, -237, -153, -184, 96, 233, -116), PackedVector2Array(-55, 80, -117, -98, -108, -285, 41, 81)])
 
 [node name="Canvas" type="Node2D" unique_id=995334587]
 
@@ -12,3 +71,12 @@ color = Color(0.42941594, 0.42941603, 0.429416, 1)
 [node name="Icon" type="Sprite2D" parent="." unique_id=425183593]
 position = Vector2(145, 108)
 texture = ExtResource("1_5vn3s")
+
+[node name="Node2D" type="Node2D" parent="." unique_id=2032385120]
+script = ExtResource("2_brmve")
+
+[node name="Node2D" type="Node2D" parent="Node2D" unique_id=1355521287]
+script = SubResource("GDScript_brmve")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1793499541]
+navigation_polygon = SubResource("NavigationPolygon_brmve")
