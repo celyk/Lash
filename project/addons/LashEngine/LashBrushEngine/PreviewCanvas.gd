@@ -25,7 +25,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	if show_preview:
-		var rect := Rect2(Vector2(), Vector2(512,512))
+		var rect := Rect2(Vector2(), render_target_instance.size)
 		draw_texture_rect(render_target_instance.get_texture(), rect, false)
 
 func commit() -> void:
@@ -40,7 +40,7 @@ static func convert_mask_to_paths(mask:Image) -> Array[PackedVector2Array]:
 	var bitmap : BitMap = convert_image_to_bitmap(mask, 0.02)
 	var holes : BitMap = convert_image_to_bitmap(mask, 0.02, true)
 	
-	var epsilon := 5.0
+	var epsilon := 6.0
 	var paths := holes.opaque_to_polygons(Rect2i(Vector2(), holes.get_size()), epsilon)
 	
 	for i in range(1,paths.size()):
@@ -54,7 +54,8 @@ static func convert_mask_to_paths(mask:Image) -> Array[PackedVector2Array]:
 	if main_shape_paths:
 		paths[0] = bitmap.opaque_to_polygons(Rect2i(Vector2(), bitmap.get_size()), epsilon)[0]
 	else:
-		assert(false)
+		#assert(false)
+		pass
 	
 	#paths.remove_at(0)
 	
@@ -81,7 +82,7 @@ static func convert_image_to_bitmap(mask:Image, threshold:=0.5, invert:bool=fals
 	
 	for j in range(0, mask.get_size().y):
 		for i in range(0, mask.get_size().x):
-			var is_inside := mask.get_pixel(i, j).r < 0.02
+			var is_inside := mask.get_pixel(i, j).a > threshold
 			result.set_bit(i, j, is_inside != invert)
 	
 	return result

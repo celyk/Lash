@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://d1u7qca4f5pij" path="res://addons/LashEngine/LashBrushEngine/renderer/render_stroke.gd" id="1_o5ccn"]
 
 [node name="RenderTarget" type="SubViewport" unique_id=190662459]
+transparent_bg = true
 
 [node name="stroke" type="Node2D" parent="." unique_id=447500695]
 script = ExtResource("1_o5ccn")

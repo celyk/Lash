@@ -26,6 +26,8 @@ func _update() -> void:
 	canvas.size = size
 
 func _gui_input(event: InputEvent) -> void:
+	get_lash_canvas().viewport.push_input(event)
+	
 	var canvas : Variant = get_lash_canvas()
 
 	if canvas == null:

@@ -3,92 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://d36m3c10kqtoa" path="res://icon.svg" id="1_5vn3s"]
 [ext_resource type="Script" uid="uid://dtxjkv7ai4j34" path="res://addons/LashEngine/LashBrushEngine/PreviewCanvas.gd" id="2_brmve"]
 
-[sub_resource type="GDScript" id="GDScript_brmve"]
-script/source = "@tool
-extends Node2D
-
-var points : Array[Vector3]
-
-func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.pressed:
-			get_parent().show_preview = true
-		else:
-			get_parent().commit()
-			points.clear()
-			
-			get_parent().show_preview = false
-	
-	if event is InputEventMouseMotion:
-		if event.button_mask == MOUSE_BUTTON_MASK_LEFT:
-			var p : Vector2 = event.position
-			points.append(Vector3(p.x, p.y, 1))
-			get_parent().set_stroke_points(points)
-
-func _ready() -> void:
-	get_parent().stroke_commited.connect(_on_stroke_commited)
-	
-	%RiveRaw.draw_rive.connect(_on_rive_draw)
-
-var commited_paths : Array[PackedVector2Array]
-func _on_stroke_commited(paths:Array[PackedVector2Array]) -> void:
-	print(\"Commited stroke!\")
-	
-	#print(paths)
-	
-	print(\"There are %s paths!\" % [paths.size()])
-	
-	if paths.is_empty():
-		return
-
-	commited_paths.append_array(paths)
-	
-	#for path in paths:
-		#print(\"Clockwise: \", Geometry2D.is_polygon_clockwise(path))
-	
-	#var polygons : Array[PackedVector2Array]
-	#polygons = merge_polygons_with_polygons(polygons, paths)
-	#polygons = [paths[0]]
-	
-	
-	
-	#
-	#for path in polygons:
-		#var polygon := Polygon2D.new()
-		#polygon.antialiased = true
-		#polygon.polygon = path
-		#add_child(polygon)
-
-var rive_path := RivePath.new()
-var rive_paint := RivePaint.new()
-func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
-	rive_path.reset()
-	
-	for i in range(0, commited_paths.size()):
-		var path := commited_paths[i]
-		
-		rive_path.add_poly(path, false)
-	
-	rive_path.set_fill_rule(2)
-	rive_paint.set_style(1)
-	rive_paint.set_color(Color.BLACK)
-	
-	renderer.draw_path(rive_path, rive_paint)
-	
-	rive_paint.set_style(0)
-	rive_paint.set_color(Color.WHITE)
-	renderer.draw_path(rive_path, rive_paint)
-
-func merge_polygons_with_polygons(a:Array[PackedVector2Array], b:Array[PackedVector2Array]) -> Array[PackedVector2Array]:
-	var result : Array[PackedVector2Array]
-	
-	for polygon_a in a:
-		for polygon_b in b:
-			result.append_array(Geometry2D.merge_polygons(polygon_a, polygon_b))
-	
-	return result
-"
-
 [sub_resource type="GDScript" id="GDScript_hbgqb"]
 script/source = "@tool
 extends RiveRaw
@@ -122,6 +36,116 @@ func _on_draw_rive(renderer: RiveRendererWrapper) -> void:
 	#renderer.draw_path(path, paint)
 "
 
+[sub_resource type="GDScript" id="GDScript_brmve"]
+script/source = "@tool
+extends Node2D
+
+var points : Array[Vector3]
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		if event.pressed:
+			get_parent().show_preview = true
+		else:
+			get_parent().commit()
+			points.clear()
+			
+			get_parent().show_preview = false
+	
+	if event is InputEventMouseMotion:
+		if event.button_mask == MOUSE_BUTTON_MASK_LEFT:
+			var p : Vector2 = event.position
+			points.append(Vector3(p.x, p.y, 1))
+			get_parent().set_stroke_points(points)
+
+func _ready() -> void:
+	get_parent().stroke_commited.connect(_on_stroke_commited)
+	
+	%RiveRaw.draw_rive.connect(_on_rive_draw)
+
+func _process(delta: float) -> void:
+	if %RiveCanvas2D.size != get_parent().get_parent().get_parent().get_parent().get_parent().size:
+		%RiveCanvas2D.size = get_parent().get_parent().get_parent().get_parent().get_parent().size
+		get_parent().render_target_instance.size = %RiveCanvas2D.size
+
+var commited_paths : Array[PackedVector2Array]
+func _on_stroke_commited(paths:Array[PackedVector2Array]) -> void:
+	print(\"Commited stroke!\")
+	
+	#print(paths)
+	
+	print(\"There are %s paths!\" % [paths.size()])
+	
+	if paths.is_empty():
+		return
+	
+	var view_matrix := get_world_to_screen_matrix()
+	for path in paths:
+		for i in range(0, path.size()):
+			path[i] = view_matrix.affine_inverse() * path[i]
+	
+	commited_paths.append_array(paths)
+	
+	#for path in paths:
+		#print(\"Clockwise: \", Geometry2D.is_polygon_clockwise(path))
+	
+	#var polygons : Array[PackedVector2Array]
+	#polygons = merge_polygons_with_polygons(polygons, paths)
+	#polygons = [paths[0]]
+	
+	
+	
+	#
+	#for path in polygons:
+		#var polygon := Polygon2D.new()
+		#polygon.antialiased = true
+		#polygon.polygon = path
+		#add_child(polygon)
+ 
+func get_world_to_screen_matrix() -> Transform2D:
+	var canvas_camera : LashCanvasCamera = get_parent().get_parent().get_parent().get_parent().get_parent().camera
+	return canvas_camera.get_screen_matrix() * canvas_camera.get_view_matrix()
+
+var rive_path := RivePath.new()
+var rive_paint := RivePaint.new()
+func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
+	renderer.save()
+	
+	rive_path.reset()
+	
+	var canvas_camera : LashCanvasCamera = get_parent().get_parent().get_parent().get_parent().get_parent().camera
+	
+	var view_matrix := get_world_to_screen_matrix()
+	renderer.transform(view_matrix.x.x, view_matrix.x.y, view_matrix.y.x, view_matrix.y.y, view_matrix.origin.x, view_matrix.origin.y)
+
+	
+	for i in range(0, commited_paths.size()):
+		var path := commited_paths[i]
+		
+		rive_path.add_poly(path, false)
+	
+	rive_path.set_fill_rule(2)
+	rive_paint.set_style(1)
+	rive_paint.set_color(Color.BLACK)
+	
+	renderer.draw_path(rive_path, rive_paint)
+	
+	rive_paint.set_style(0)
+	rive_paint.set_color(Color.GREEN)
+	#renderer.draw_path(rive_path, rive_paint)
+	
+	renderer.restore()
+
+func merge_polygons_with_polygons(a:Array[PackedVector2Array], b:Array[PackedVector2Array]) -> Array[PackedVector2Array]:
+	var result : Array[PackedVector2Array]
+	
+	for polygon_a in a:
+		for polygon_b in b:
+			result.append_array(Geometry2D.merge_polygons(polygon_a, polygon_b))
+	
+	return result
+"
+
 [node name="Canvas" type="Node2D" unique_id=995334587]
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1166422100]
@@ -133,15 +157,17 @@ color = Color(0.42941594, 0.42941603, 0.429416, 1)
 position = Vector2(145, 108)
 texture = ExtResource("1_5vn3s")
 
-[node name="Node2D" type="Node2D" parent="." unique_id=2032385120]
-script = ExtResource("2_brmve")
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1185243873]
 
-[node name="Node2D" type="Node2D" parent="Node2D" unique_id=1355521287]
-script = SubResource("GDScript_brmve")
-
-[node name="RiveCanvas2D" type="RiveCanvas2D" parent="." unique_id=297894688]
+[node name="RiveCanvas2D" type="RiveCanvas2D" parent="CanvasLayer" unique_id=297894688]
 unique_name_in_owner = true
 
-[node name="RiveRaw" type="RiveRaw" parent="RiveCanvas2D" unique_id=1772683923]
+[node name="RiveRaw" type="RiveRaw" parent="CanvasLayer/RiveCanvas2D" unique_id=1772683923]
 unique_name_in_owner = true
 script = SubResource("GDScript_hbgqb")
+
+[node name="Node2D" type="Node2D" parent="CanvasLayer" unique_id=2032385120]
+script = ExtResource("2_brmve")
+
+[node name="Node2D" type="Node2D" parent="CanvasLayer/Node2D" unique_id=1355521287]
+script = SubResource("GDScript_brmve")

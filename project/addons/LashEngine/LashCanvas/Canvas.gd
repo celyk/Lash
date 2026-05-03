@@ -33,11 +33,13 @@ func _initialize() -> void:
 		child.queue_free()
 	
 	camera = LashCanvasCamera.new()
+	camera._canvas = self
+	
 	viewport.add_child(camera)
 	viewport.add_child(CANVAS.instantiate(), true)
 
-func _input(event: InputEvent) -> void:
-	viewport.push_input(event)
+#func _input(event: InputEvent) -> void:
+	#viewport.push_input(event)
 
 func _process(delta: float) -> void:
 	if viewport.size != size:
