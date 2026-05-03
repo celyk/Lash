@@ -27,24 +27,57 @@ func _input(event: InputEvent) -> void:
 
 func _ready() -> void:
 	get_parent().stroke_commited.connect(_on_stroke_commited)
+	
+	%RiveRaw.draw_rive.connect(_on_rive_draw)
 
+var commited_paths : Array[PackedVector2Array]
 func _on_stroke_commited(paths:Array[PackedVector2Array]) -> void:
 	print(\"Commited stroke!\")
 	
-	print(paths)
+	#print(paths)
+	
+	print(\"There are %s paths!\" % [paths.size()])
 	
 	if paths.is_empty():
 		return
+
+	commited_paths.append_array(paths)
 	
-	var polygons : Array[PackedVector2Array]
-	polygons = merge_polygons_with_polygons(polygons, paths)
-	polygons = [paths[0]]
+	#for path in paths:
+		#print(\"Clockwise: \", Geometry2D.is_polygon_clockwise(path))
 	
-	for path in polygons:
-		var polygon := Polygon2D.new()
-		polygon.antialiased = true
-		polygon.polygon = path
-		add_child(polygon)
+	#var polygons : Array[PackedVector2Array]
+	#polygons = merge_polygons_with_polygons(polygons, paths)
+	#polygons = [paths[0]]
+	
+	
+	
+	#
+	#for path in polygons:
+		#var polygon := Polygon2D.new()
+		#polygon.antialiased = true
+		#polygon.polygon = path
+		#add_child(polygon)
+
+var rive_path := RivePath.new()
+var rive_paint := RivePaint.new()
+func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
+	rive_path.reset()
+	
+	for i in range(0, commited_paths.size()):
+		var path := commited_paths[i]
+		
+		rive_path.add_poly(path, false)
+	
+	rive_path.set_fill_rule(2)
+	rive_paint.set_style(1)
+	rive_paint.set_color(Color.BLACK)
+	
+	renderer.draw_path(rive_path, rive_paint)
+	
+	rive_paint.set_style(0)
+	rive_paint.set_color(Color.WHITE)
+	renderer.draw_path(rive_path, rive_paint)
 
 func merge_polygons_with_polygons(a:Array[PackedVector2Array], b:Array[PackedVector2Array]) -> Array[PackedVector2Array]:
 	var result : Array[PackedVector2Array]
@@ -56,10 +89,38 @@ func merge_polygons_with_polygons(a:Array[PackedVector2Array], b:Array[PackedVec
 	return result
 "
 
-[sub_resource type="NavigationPolygon" id="NavigationPolygon_brmve"]
-vertices = PackedVector2Array(-225.28125, -145.96875, -123.28125, -175.42188, -127.078125, -96.53906, -176.92188, 81.1875, -81.97656, 32.921875, 26.070313, 70.84375, -47.867188, 70.07031, -57.351563, 42.828125, 2.3125, 12.4921875, 218.86719, -120.03125, 12.640625, -15.171875, -60.023438, -193.67188, 139.40625, -251.25781, -86.92969, -206.71875, -101.953125, -202.39063, -100.17969, -239.28125)
-polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(3, 2, 4), PackedInt32Array(5, 6, 7, 8), PackedInt32Array(9, 10, 11, 12), PackedInt32Array(13, 14, 15)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(144, -263, -237, -153, -184, 96, 233, -116), PackedVector2Array(-55, 80, -117, -98, -108, -285, 41, 81)])
+[sub_resource type="GDScript" id="GDScript_hbgqb"]
+script/source = "@tool
+extends RiveRaw
+
+func _ready() -> void:
+	draw_rive.connect(_on_draw_rive)
+
+var path := RivePath.new()
+var paint := RivePaint.new()
+
+func _on_draw_rive(renderer: RiveRendererWrapper) -> void:
+	return
+	
+	path.set_fill_rule(2)
+	
+	var arr = [Vector2(0,0), Vector2(100,0), Vector2(70,100), Vector2(0,100)]
+	path.add_poly(arr, false)
+	
+	arr = [Vector2(20,20), Vector2(50,20), Vector2(20,50)]
+	arr.reverse()
+	
+	path.add_poly(arr, false)
+	
+	renderer.draw_path(path, paint)
+	
+	path.reset()
+	path.set_fill_rule(2)
+	
+	#path.add_poly([Vector2(20,20), Vector2(0,100), Vector2(0,100)], true)
+	
+	#renderer.draw_path(path, paint)
+"
 
 [node name="Canvas" type="Node2D" unique_id=995334587]
 
@@ -78,5 +139,9 @@ script = ExtResource("2_brmve")
 [node name="Node2D" type="Node2D" parent="Node2D" unique_id=1355521287]
 script = SubResource("GDScript_brmve")
 
-[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1793499541]
-navigation_polygon = SubResource("NavigationPolygon_brmve")
+[node name="RiveCanvas2D" type="RiveCanvas2D" parent="." unique_id=297894688]
+unique_name_in_owner = true
+
+[node name="RiveRaw" type="RiveRaw" parent="RiveCanvas2D" unique_id=1772683923]
+unique_name_in_owner = true
+script = SubResource("GDScript_hbgqb")
