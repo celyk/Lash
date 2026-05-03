@@ -60,6 +60,25 @@ static func convert_mask_to_paths(mask:Image) -> Array[PackedVector2Array]:
 	#paths.remove_at(0)
 	
 	paths[0].reverse()
+	
+	
+	var smoothed_paths : Array[PackedVector2Array]
+	
+	for path in paths:
+		var smoothed_path : PackedVector2Array
+		
+		for i in range(1, path.size()):
+			var p0 := path[i-1]
+			var p1 := path[i-1]
+			var p2 := path[i]
+			var p3 := path[i]
+			
+			smoothed_path.append_array([p0, p1, p2, p3])
+		
+		_make_path_smooth(smoothed_path)
+		
+		smoothed_paths.append(smoothed_path)
+	
 	#paths.resize(1)
 	
 	#var main_shape_index := 0
@@ -74,7 +93,13 @@ static func convert_mask_to_paths(mask:Image) -> Array[PackedVector2Array]:
 	#
 	#paths[main_shape_index].reverse()
 	
-	return paths
+	return smoothed_paths
+
+static func _make_path_smooth(path:PackedVector2Array) -> void:
+	for i in range(4, path.size()-4, 4):
+		path[i+1] = (path[i+4] - path[i-4]) / 2 / 3
+		path[i-2] = path[i] - path[i+1]
+		path[i+1] += path[i]
 
 static func convert_image_to_bitmap(mask:Image, threshold:=0.5, invert:bool=false) -> BitMap:
 	var result := BitMap.new()

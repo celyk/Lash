@@ -55,7 +55,26 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		if event.button_mask == MOUSE_BUTTON_MASK_LEFT:
 			var p : Vector2 = event.position
+			
+			var prev_p : Vector3
+			
+			#if not points.is_empty():
+				#prev_p = points.back()
+			#else:
+				#prev_p = Vector3(p.x, p.y, 1)
+			#
+			#if not points.is_empty():
+				#points.append(prev_p)
+				#points.append(prev_p)
+			#else:
+				#points.append(Vector3(p.x, p.y, 1))
+				#points.append(Vector3(p.x, p.y, 1))
+			
+			#points.append(Vector3(p.x, p.y, 1))
+			#points.append(Vector3(p.x, p.y, 1))
+			
 			points.append(Vector3(p.x, p.y, 1))
+			
 			get_parent().set_stroke_points(points)
 
 func _ready() -> void:
@@ -64,8 +83,8 @@ func _ready() -> void:
 	%RiveRaw.draw_rive.connect(_on_rive_draw)
 
 func _process(delta: float) -> void:
-	if %RiveCanvas2D.size != get_parent().get_parent().get_parent().get_parent().get_parent().size:
-		%RiveCanvas2D.size = get_parent().get_parent().get_parent().get_parent().get_parent().size
+	if %RiveCanvas2D.size != get_lash_canvas().size:
+		%RiveCanvas2D.size = get_lash_canvas().size
 		get_parent().render_target_instance.size = %RiveCanvas2D.size
 
 var commited_paths : Array[PackedVector2Array]
@@ -102,8 +121,11 @@ func _on_stroke_commited(paths:Array[PackedVector2Array]) -> void:
 		#polygon.polygon = path
 		#add_child(polygon)
  
+func get_lash_canvas() -> LashCanvas:
+	return get_parent().get_parent().get_parent().get_parent().get_parent()
+
 func get_world_to_screen_matrix() -> Transform2D:
-	var canvas_camera : LashCanvasCamera = get_parent().get_parent().get_parent().get_parent().get_parent().camera
+	var canvas_camera : LashCanvasCamera = get_lash_canvas().camera
 	return canvas_camera.get_screen_matrix() * canvas_camera.get_view_matrix()
 
 var rive_path := RivePath.new()
@@ -113,16 +135,23 @@ func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
 	
 	rive_path.reset()
 	
-	var canvas_camera : LashCanvasCamera = get_parent().get_parent().get_parent().get_parent().get_parent().camera
+	var canvas_camera : LashCanvasCamera = get_lash_canvas().camera
 	
 	var view_matrix := get_world_to_screen_matrix()
 	renderer.transform(view_matrix.x.x, view_matrix.x.y, view_matrix.y.x, view_matrix.y.y, view_matrix.origin.x, view_matrix.origin.y)
 
-	
-	for i in range(0, commited_paths.size()):
-		var path := commited_paths[i]
-		
-		rive_path.add_poly(path, false)
+	for path in commited_paths:
+		for i in range(0, path.size()-4, 4):
+			var p0 := path[i+0]
+			var p3 := path[i+3]
+			var p1 := path[i+1]
+			var p2 := path[i+2]
+			
+			if i == 0:
+				rive_path.move_to(p0.x, p0.y)
+				continue
+			
+			rive_path.cubic_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
 	
 	rive_path.set_fill_rule(2)
 	rive_paint.set_style(1)
@@ -132,6 +161,7 @@ func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
 	
 	rive_paint.set_style(0)
 	rive_paint.set_color(Color.GREEN)
+	
 	#renderer.draw_path(rive_path, rive_paint)
 	
 	renderer.restore()
@@ -160,6 +190,7 @@ texture = ExtResource("1_5vn3s")
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1185243873]
 
 [node name="RiveCanvas2D" type="RiveCanvas2D" parent="CanvasLayer" unique_id=297894688]
+size = Vector2i(1800, 1511)
 unique_name_in_owner = true
 
 [node name="RiveRaw" type="RiveRaw" parent="CanvasLayer/RiveCanvas2D" unique_id=1772683923]
