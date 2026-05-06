@@ -1,0 +1,15 @@
+[gd_resource type="Theme" format=3 uid="uid://qlldl4bxalrx"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tsbh2"]
+bg_color = Color(0.22130162, 0.22130162, 0.22130159, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6tukj"]
+bg_color = Color(0.08468992, 0.08468994, 0.08468989, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g1fjd"]
+bg_color = Color(0.14767182, 0.14767182, 0.14767176, 1)
+
+[resource]
+Button/styles/normal = SubResource("StyleBoxFlat_tsbh2")
+Button/styles/pressed = SubResource("StyleBoxFlat_6tukj")
+Panel/styles/panel = SubResource("StyleBoxFlat_g1fjd")
