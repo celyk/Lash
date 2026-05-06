@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://b5shftvicpcqn" path="res://addons/LashEngine/LashCanvas/CanvasContainer.gd" id="1_3lvfr"]
 [ext_resource type="Script" uid="uid://ihhb67wodqi2" path="res://addons/LashEngine/LashToolbar/Toolbar.gd" id="1_x3h8h"]
 [ext_resource type="Script" uid="uid://da5eqv5sq87tm" path="res://addons/LashEngine/LashCanvas/Canvas.gd" id="2_hlo7n"]
+[ext_resource type="Script" uid="uid://calbmajeryv8m" path="res://addons/LashEngine/LashToolbar/ToolbarButton.gd" id="2_qry5k"]
 [ext_resource type="Script" uid="uid://dp2o321xylvkj" path="res://addons/LashEngine/LashTimeline/Timeline.gd" id="3_hlo7n"]
 
 [node name="UI" type="Control" unique_id=73856781]
@@ -35,11 +36,41 @@ dragger_visibility = 2
 drag_area_highlight_in_editor = true
 metadata/_edit_lock_ = true
 
-[node name="LashToolbar" type="Control" parent="HSplitContainer" unique_id=398044309]
-custom_minimum_size = Vector2(40, 0)
+[node name="LashToolbar" type="BoxContainer" parent="HSplitContainer" unique_id=540602297]
 layout_mode = 2
+vertical = true
 script = ExtResource("1_x3h8h")
 metadata/_custom_type_script = "uid://ihhb67wodqi2"
+
+[node name="LashToolbarButton" type="Button" parent="HSplitContainer/LashToolbar" unique_id=1034344497]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+script = ExtResource("2_qry5k")
+metadata/_custom_type_script = "uid://calbmajeryv8m"
+
+[node name="LashToolbarButton2" type="Button" parent="HSplitContainer/LashToolbar" unique_id=194905072]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+script = ExtResource("2_qry5k")
+metadata/_custom_type_script = "uid://calbmajeryv8m"
+
+[node name="LashToolbarButton3" type="Button" parent="HSplitContainer/LashToolbar" unique_id=1144145536]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+script = ExtResource("2_qry5k")
+metadata/_custom_type_script = "uid://calbmajeryv8m"
+
+[node name="LashToolbarButton4" type="Button" parent="HSplitContainer/LashToolbar" unique_id=1261705503]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+script = ExtResource("2_qry5k")
+metadata/_custom_type_script = "uid://calbmajeryv8m"
+
+[node name="LashToolbarButton5" type="Button" parent="HSplitContainer/LashToolbar" unique_id=1851926061]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+script = ExtResource("2_qry5k")
+metadata/_custom_type_script = "uid://calbmajeryv8m"
 
 [node name="VSplitContainer" type="VSplitContainer" parent="HSplitContainer" unique_id=276995948]
 layout_mode = 2

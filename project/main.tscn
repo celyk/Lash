@@ -16,4 +16,7 @@ script = ExtResource("1_0xm2m")
 
 [node name="UI" parent="CanvasLayer" unique_id=982314893 instance=ExtResource("1_ig7tw")]
 
+[node name="LashToolbar" parent="CanvasLayer/UI/HSplitContainer" parent_id_path=PackedInt32Array(982314893, 801115886) index="0" unique_id=398044309]
+tool_index = null
+
 [editable path="CanvasLayer/UI"]
