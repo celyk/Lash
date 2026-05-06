@@ -8,6 +8,13 @@ bg_color = Color(0.08468992, 0.08468994, 0.08468989, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g1fjd"]
 bg_color = Color(0.14767182, 0.14767182, 0.14767176, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0, 0, 0, 1)
+expand_margin_right = 3.0
+expand_margin_bottom = 3.0
 
 [resource]
 Button/styles/normal = SubResource("StyleBoxFlat_tsbh2")

@@ -105,7 +105,15 @@ unique_name_in_owner = true
 script = ExtResource("2_hlo7n")
 metadata/_custom_type_script = "uid://da5eqv5sq87tm"
 
-[node name="LashTimeline" type="Control" parent="HSplitContainer/VSplitContainer" unique_id=996172581]
+[node name="HSplitContainer" type="HSplitContainer" parent="HSplitContainer/VSplitContainer" unique_id=441393281]
+layout_mode = 2
+dragger_visibility = 2
+
+[node name="Panel" type="Panel" parent="HSplitContainer/VSplitContainer/HSplitContainer" unique_id=1505009582]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+
+[node name="LashTimeline" type="Control" parent="HSplitContainer/VSplitContainer/HSplitContainer" unique_id=996172581]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
