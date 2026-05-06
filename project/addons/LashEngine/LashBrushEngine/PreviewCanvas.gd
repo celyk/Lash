@@ -40,7 +40,7 @@ static func convert_mask_to_paths(mask:Image) -> Array[PackedVector2Array]:
 	var bitmap : BitMap = convert_image_to_bitmap(mask, 0.02)
 	var holes : BitMap = convert_image_to_bitmap(mask, 0.02, true)
 	
-	var epsilon := 6.0
+	var epsilon := 0.0
 	var paths := holes.opaque_to_polygons(Rect2i(Vector2(), holes.get_size()), epsilon)
 	
 	for i in range(1,paths.size()):
@@ -64,20 +64,26 @@ static func convert_mask_to_paths(mask:Image) -> Array[PackedVector2Array]:
 	
 	var smoothed_paths : Array[PackedVector2Array]
 	
+	
 	for path in paths:
-		var smoothed_path : PackedVector2Array
-		
-		for i in range(1, path.size()):
-			var p0 := path[i-1]
-			var p1 := path[i-1]
-			var p2 := path[i]
-			var p3 := path[i]
-			
-			smoothed_path.append_array([p0, p1, p2, p3])
-		
-		_make_path_smooth(smoothed_path)
-		
+		var smoothed_path := LashPathSimplification.fit_curve(path, 17129.0)
 		smoothed_paths.append(smoothed_path)
+	
+	
+	#for path in paths:
+		#var smoothed_path : PackedVector2Array
+		#
+		#for i in range(1, path.size()):
+			#var p0 := path[i-1]
+			#var p1 := path[i-1]
+			#var p2 := path[i]
+			#var p3 := path[i]
+			#
+			#smoothed_path.append_array([p0, p1, p2, p3])
+		#
+		#_make_path_smooth(smoothed_path)
+		#
+		#smoothed_paths.append(smoothed_path)
 	
 	#paths.resize(1)
 	

@@ -162,7 +162,7 @@ func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
 	rive_paint.set_style(0)
 	rive_paint.set_color(Color.GREEN)
 	
-	#renderer.draw_path(rive_path, rive_paint)
+	renderer.draw_path(rive_path, rive_paint)
 	
 	renderer.restore()
 
