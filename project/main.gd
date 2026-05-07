@@ -11,7 +11,7 @@ var save_name := "user://test_save.lash"
 var save_count := 0
 
 func _ready() -> void:
-	project = LashProject.open(save_name)
+	#project = LashProject.open(save_name)
 	lash_canvas.project = project
 	
 	var line_2d := Line2D.new()
@@ -24,7 +24,7 @@ func _ready() -> void:
 	line_2d.add_point(Vector2(200, 500))
 	
 	print(lash_canvas.viewport.get_child(2))
-	lash_canvas.viewport.get_child(2).add_child(line_2d, true); line_2d.owner = lash_canvas.viewport.get_child(2)
+	#lash_canvas.viewport.get_child(2).add_child(line_2d, true); line_2d.owner = lash_canvas.viewport.get_child(2)
 	print(line_2d.get_path())
 	
 	if OS.get_name() == "macOS" || OS.get_name() == "iOS":
@@ -46,3 +46,9 @@ func _process(delta: float) -> void:
 		project = LashProject.open(save_name)
 		lash_canvas.project = project
 		save_count += 1
+	
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey:
+		if event.keycode == KEY_D:
+			AppState.show_debug = event.pressed

@@ -141,7 +141,7 @@ func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
 	renderer.transform(view_matrix.x.x, view_matrix.x.y, view_matrix.y.x, view_matrix.y.y, view_matrix.origin.x, view_matrix.origin.y)
 
 	for path in commited_paths:
-		for i in range(0, path.size()-4, 4):
+		for i in range(0, path.size(), 4):
 			var p0 := path[i+0]
 			var p3 := path[i+3]
 			var p1 := path[i+1]
@@ -149,7 +149,7 @@ func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
 			
 			if i == 0:
 				rive_path.move_to(p0.x, p0.y)
-				continue
+				#continue
 			
 			rive_path.cubic_to(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y)
 	
@@ -159,10 +159,20 @@ func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
 	
 	renderer.draw_path(rive_path, rive_paint)
 	
-	rive_paint.set_style(0)
-	rive_paint.set_color(Color.GREEN)
-	
-	renderer.draw_path(rive_path, rive_paint)
+	if AppState.show_debug:
+		rive_paint.set_style(0)
+		rive_paint.set_color(Color.GREEN)
+		
+		for path in commited_paths:
+			for i in range(0, path.size(), 4):
+				var p0 := path[i+0]
+				var p3 := path[i+3]
+				var p1 := path[i+1]
+				var p2 := path[i+2]
+				
+				rive_path.add_circle(p3.x, p3.y, 1.0)
+		
+		renderer.draw_path(rive_path, rive_paint)
 	
 	renderer.restore()
 
@@ -184,6 +194,7 @@ offset_bottom = 720.0
 color = Color(0.42941594, 0.42941603, 0.429416, 1)
 
 [node name="Icon" type="Sprite2D" parent="." unique_id=425183593]
+visible = false
 position = Vector2(145, 108)
 texture = ExtResource("1_5vn3s")
 
