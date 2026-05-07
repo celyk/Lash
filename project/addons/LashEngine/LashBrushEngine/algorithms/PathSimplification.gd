@@ -20,33 +20,44 @@ static func fit_curve(polyline:PackedVector2Array, error:float) -> PackedVector2
 static func _fit_cubic_spline(polyline:PackedVector2Array, first:int, last:int, tangent_0:Vector2, tangent_1:Vector2, error:float, iteration_depth:=0) -> PackedVector2Array:
 	assert(polyline.size() > 2)
 	
-	var result := PackedVector2Array()
-	
 	## Handle max recursion depth. This shouldn't happen often.
 	if last - first <= 2:
 		# Just a straight line.
-		result = [polyline[first], polyline[first], polyline[last], polyline[last]]
-		return result
+		return [polyline[first], polyline[first], polyline[last], polyline[last]]
 	
 	var t_values : Array[float] = _chord_length_parameterize(polyline, first, last)
 	
 	var bezier_candidate : PackedVector2Array = _fit_cubic_bezier(polyline, first, last, t_values, tangent_0, tangent_1)
+	#bezier_candidate = [polyline[first], polyline[first], polyline[last], polyline[last]]
 	
 	#return bezier_candidate
 	
 	## Find max deviation of points to fitted curve.
 	#print(iteration_depth == 0 || last != polyline.size()-1)
-	var error_result :=  _compute_max_error(polyline, first, last, bezier_candidate, t_values)
+	var error_result : Dictionary =  _compute_max_error(polyline, first, last, bezier_candidate, t_values)
 	var max_error : float = error_result.max_error
 	var split_index : int = error_result.split_index
+
 	
-	if max_error < error || iteration_depth > 5:
+	if max_error < error:
 		return bezier_candidate
 	
-	if iteration_depth > 0: #((Engine.get_main_loop() as SceneTree).get_frame() / 20) % 10:
-		return bezier_candidate
+	#
+	#if iteration_depth > 2:
+		#return bezier_candidate
+	
+	#if iteration_depth > (((Engine.get_main_loop() as SceneTree).get_frame() / 30) % 10):
+		#return bezier_candidate
 	
 	var split_tangent := _compute_tangent(polyline, split_index)
+	
+	var result := PackedVector2Array()
+	
+	if split_index - first < 3 || last - split_index < 3:
+		split_index = (last + first + 1) / 2
+	
+	if split_index - first < 3 || last - split_index < 3:
+		return bezier_candidate
 	
 	result.append_array(
 		_fit_cubic_spline(polyline, first, split_index, tangent_0, -split_tangent, error, iteration_depth + 1)
@@ -58,9 +69,9 @@ static func _fit_cubic_spline(polyline:PackedVector2Array, first:int, last:int, 
 	return result
 
 static func _fit_cubic_bezier(polyline:PackedVector2Array, first:int, last:int, t_values:Array[float], tangent_0:Vector2, tangent_1:Vector2) -> PackedVector2Array:
-	var result : PackedVector2Array = [polyline[0], polyline[0], polyline[polyline.size() - 1], polyline[polyline.size() - 1]]
+	var result : PackedVector2Array = [polyline[first], polyline[first], polyline[last], polyline[last]]
 	
-	return result
+	#return result
 	
 	var num_points : int = last - first + 1
 
@@ -77,8 +88,10 @@ static func _fit_cubic_bezier(polyline:PackedVector2Array, first:int, last:int, 
 		A[i][1] = tangent_1 * 3 * (1.0 - u) * pow(u, 2.0)
 
 	# Create the C and X matrices
-	var C := Transform2D()
 	var X := Vector2()
+	var C : Array[Array] # Transform2D()
+	C.append([0.0, 0.0])
+	C.append([0.0, 0.0])
 
 	for i:int in range(0, num_points):
 		C[0][0] += A[i][0].dot(A[i][0])
@@ -93,7 +106,7 @@ static func _fit_cubic_bezier(polyline:PackedVector2Array, first:int, last:int, 
 		
 		X[0] += A[i][0].dot(tmp)
 		X[1] += A[i][1].dot(tmp)
-
+	
 	# Compute the determinants of C and X
 	var det_C0_C1 : float = C[0][0] * C[1][1] - C[1][0] * C[0][1]
 	var det_C0_X : float = C[0][0] * X[1] - C[1][0] * X[0]
@@ -110,17 +123,22 @@ static func _fit_cubic_bezier(polyline:PackedVector2Array, first:int, last:int, 
 	result[1] = result[0] + tangent_0 * alpha_l
 	result[2] = result[3] + tangent_1 * alpha_r
 	
+	
+	#result[1] = result[0] + tangent_0 * 100.0# * alpha_l
+	#result[2] = result[3] + tangent_1 * 100.0# * alpha_r
+	
 	return result
 
 static func _chord_length_parameterize(polyline:PackedVector2Array, first:int, last:int) -> Array[float]:
 	var t_values : Array[float]
+	t_values.resize(last - first + 1)
 	
 	var current_t : float = 0.0
-	t_values.append(current_t)
+	t_values[0] = current_t
 	
 	for i:int in range(first+1, last+1):
 		current_t += (polyline[i] - polyline[i - 1]).length()
-		t_values.append(current_t)
+		t_values[i - first] = current_t
 	
 	assert(t_values.size() == last - first + 1)
 	
@@ -143,7 +161,7 @@ static func _compute_max_error(
 	var max_dist : float = 0.0
 	var split_index : int = -1
 	
-	for i in range(first + 1, last):
+	for i in range(first, last+1):
 		var p : Vector2 = _bezier_interpolate(bezier[0], bezier[1], bezier[2], bezier[3], t_values[i - first])
 		var dist : float = (p - polyline[i]).length_squared()
 		
@@ -152,8 +170,6 @@ static func _compute_max_error(
 			split_index = i
 	
 	assert(split_index != -1)
-	
-	split_index = (last + first + 1) / 2
 	
 	return {
 		"max_error": max_dist,
