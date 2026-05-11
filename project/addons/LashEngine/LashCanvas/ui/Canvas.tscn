@@ -166,8 +166,11 @@ func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
 	renderer.draw_path(rive_path, rive_paint)
 	
 	if AppState.show_debug:
+		var screen_to_world_scale := get_world_to_screen_matrix().affine_inverse().x.x
+		
 		rive_paint.set_style(0)
 		rive_paint.set_color(Color.GREEN)
+		rive_paint.set_thickness(screen_to_world_scale * 2.0)
 		
 		for path in commited_paths:
 			for i in range(0, path.size(), 4):
@@ -176,7 +179,8 @@ func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
 				var p1 := path[i+1]
 				var p2 := path[i+2]
 				
-				rive_path.add_circle(p3.x, p3.y, 1.0)
+				rive_path.add_circle(p3.x, p3.y, screen_to_world_scale * 2.0)
+				#rive_path.add_circle(p3.x, p3.y, 4.0)
 		
 		renderer.draw_path(rive_path, rive_paint)
 	
