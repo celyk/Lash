@@ -83,6 +83,9 @@ func _ready() -> void:
 	%RiveRaw.draw_rive.connect(_on_rive_draw)
 
 func _process(delta: float) -> void:
+	if not (get_lash_canvas() is LashCanvas):
+		return
+	
 	if %RiveCanvas2D.size != get_lash_canvas().size:
 		%RiveCanvas2D.size = get_lash_canvas().size
 		get_parent().render_target_instance.size = %RiveCanvas2D.size
@@ -131,6 +134,9 @@ func get_world_to_screen_matrix() -> Transform2D:
 var rive_path := RivePath.new()
 var rive_paint := RivePaint.new()
 func _on_rive_draw(renderer: RiveRendererWrapper) -> void:
+	if not (get_lash_canvas() is LashCanvas):
+		return
+	
 	renderer.save()
 	
 	rive_path.reset()

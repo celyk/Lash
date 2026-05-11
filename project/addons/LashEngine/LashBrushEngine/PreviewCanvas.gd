@@ -65,11 +65,10 @@ static func convert_mask_to_paths(mask:Image) -> Array[PackedVector2Array]:
 	for path in paths:
 		path.append(path[0])
 	
-	
 	var smoothed_paths : Array[PackedVector2Array]
 	
 	for path in paths:
-		var smoothed_path := LashPathSimplification.fit_curve(path, 5.0)
+		var smoothed_path := LashPathSimplification.fit_curve(path, 5.0, true)
 		smoothed_paths.append(smoothed_path)
 		
 		#smoothed_paths.append(PackedVector2Array())

@@ -7,9 +7,9 @@ class_name LashPathSimplification extends Object
 ## https://github.com/volkerp/fitCurves/blob/master/fitCurves.py
 
 ## No duplicate control points pls
-static func fit_curve(polyline:PackedVector2Array, error:float) -> PackedVector2Array:
-	var tangent_0 : Vector2 = _compute_tangent(polyline, 0)
-	var tangent_1 : Vector2 = -1.0 * _compute_tangent(polyline, polyline.size() - 1)
+static func fit_curve(polyline:PackedVector2Array, error:float, closed:=false) -> PackedVector2Array:
+	var tangent_0 : Vector2 = _compute_tangent(polyline, 0, closed)
+	var tangent_1 : Vector2 = -1.0 * _compute_tangent(polyline, polyline.size() - 1, closed)
 	
 	var first : int = 0
 	var last : int = polyline.size() - 1
@@ -176,9 +176,13 @@ static func _compute_max_error(
 		"split_index": split_index
 	}
 
-static func _compute_tangent(polyline:PackedVector2Array, index:int) -> Vector2:
-	var previous_index : int = max(index - 1, 0)
-	var next_index : int = min(index + 1, polyline.size() - 1)
+static func _compute_tangent(polyline:PackedVector2Array, index:int, closed:=false) -> Vector2:
+	var previous_index : int = index - 1
+	var next_index : int = index + 1
+	
+	previous_index = posmod(previous_index, polyline.size() - 1) if closed else max(previous_index, 0)
+	next_index = posmod(next_index, polyline.size() - 1) if closed else min(next_index, polyline.size() - 1)
+	
 	return (polyline[next_index] - polyline[previous_index]).normalized()
 
 static func _bezier_interpolate(p0:Vector2, p1:Vector2, p2:Vector2, p3:Vector2, t:float) -> Vector2:
